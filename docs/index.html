@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>THE WHATEVER GAME — a game that refuses to pick a genre</title>
+<meta name="description" content="31 genres, 4 bosses, 9 worlds, 1000+ badges and 104 skins — all in one game that changes underneath you every few seconds. Free on Android.">
+<meta property="og:title" content="THE WHATEVER GAME">
+<meta property="og:description" content="31 games in one. It morphs mid-run and never asks permission.">
+<meta property="og:image" content="feature.png">
+<meta property="og:type" content="website">
+<link rel="icon" href="icon.png">
+<style>
+  :root{
+    --bg:#05050c; --panel:#0e0e18; --line:#1e1e2c; --ink:#e9e9f4; --dim:#8b90a6;
+    --a1:#4dd2ff; --a2:#c084fc; --a3:#ff4d6d; --a4:#ffd94d; --a5:#4dffa6;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    overflow-x:hidden}
+  .wrap{max-width:64rem;margin:0 auto;padding:0 1.25rem}
+
+  /* hero */
+  header{position:relative;padding:5.5rem 0 4rem;text-align:center;overflow:hidden}
+  header::before{content:"";position:absolute;inset:-40% -20% auto;height:120%;
+    background:radial-gradient(60% 50% at 50% 30%,rgba(192,132,252,.20),transparent 70%),
+               radial-gradient(45% 40% at 20% 10%,rgba(77,210,255,.16),transparent 70%),
+               radial-gradient(45% 40% at 85% 20%,rgba(255,77,109,.13),transparent 70%);
+    pointer-events:none}
+  h1{position:relative;margin:0;font:900 italic clamp(2.4rem,9vw,5rem)/0.95 "Segoe UI",system-ui;
+    letter-spacing:-.03em}
+  h1 .the,h1 .game{color:#ffffff22}
+  h1 .wh{background:linear-gradient(92deg,var(--a1),var(--a2),var(--a3),var(--a4),var(--a5));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    background-size:300% 100%;animation:hue 9s linear infinite}
+  @keyframes hue{to{background-position:300% 0}}
+  .tag{position:relative;margin:1.1rem 0 .4rem;color:#cfd3e4;font-size:clamp(.95rem,2.6vw,1.15rem)}
+  .counts{position:relative;color:var(--a1);font-weight:700;font-size:.85rem;letter-spacing:.04em}
+  .cta{position:relative;display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;margin-top:2.2rem}
+  .btn{display:inline-block;padding:.85rem 1.5rem;border-radius:10px;text-decoration:none;
+    font-weight:800;font-size:.92rem;border:2px solid var(--line);color:var(--ink);
+    background:var(--panel);transition:.15s}
+  .btn:hover{border-color:var(--a1);transform:translateY(-1px)}
+  .btn.play{background:var(--a5);border-color:var(--a5);color:#03170d}
+  .btn.play:hover{background:#7dffbe}
+  .btn.soon{opacity:.55;cursor:default}
+  .btn.soon:hover{border-color:var(--line);transform:none}
+
+  section{padding:3.2rem 0;border-top:1px solid var(--line)}
+  h2{font-size:1.35rem;margin:0 0 1.4rem;letter-spacing:-.01em}
+  .grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1.1rem 1.25rem}
+  .card h3{margin:0 0 .35rem;font-size:.95rem;color:var(--a1)}
+  .card p{margin:0;color:var(--dim);font-size:.9rem;line-height:1.55}
+  .stats{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(7rem,1fr));
+    margin-bottom:1.6rem}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:1rem .6rem;text-align:center}
+  .stat b{display:block;font-size:1.6rem;font-weight:900;letter-spacing:-.02em}
+  .stat span{font-size:.7rem;color:var(--dim);letter-spacing:.09em;text-transform:uppercase}
+  .n1{color:var(--a1)} .n2{color:var(--a2)} .n3{color:var(--a3)} .n4{color:var(--a4)} .n5{color:var(--a5)}
+  .shots{display:grid;gap:.8rem;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))}
+  .shots img{width:100%;border-radius:10px;border:1px solid var(--line);display:block}
+  footer{border-top:1px solid var(--line);padding:2.4rem 0 3.5rem;color:var(--dim);font-size:.85rem}
+  footer a{color:var(--a1)}
+  .foot{display:flex;gap:1.4rem;flex-wrap:wrap;margin-bottom:1rem}
+  .note{background:#0b1420;border-left:3px solid var(--a1);padding:.85rem 1.1rem;
+    border-radius:0 8px 8px 0;color:#a9b3c9;font-size:.88rem;margin-top:1.4rem}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1><span class="the">THE</span><br><span class="wh">WHATEVER</span><br><span class="game">GAME</span></h1>
+    <p class="tag">A game that refuses to pick a genre. So it picks all of them.</p>
+    <p class="counts">31 GENRES · 4 BOSSES · 9 WORLDS · 1 CAT · 1 ∅</p>
+    <div class="cta">
+      <a class="btn play" href="play.html">▶ Play in your browser</a>
+      <a class="btn soon">Google Play — coming soon</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat"><b class="n1">31</b><span>genres</span></div>
+      <div class="stat"><b class="n3">4</b><span>bosses</span></div>
+      <div class="stat"><b class="n2">9</b><span>worlds</span></div>
+      <div class="stat"><b class="n4">1063</b><span>badges</span></div>
+      <div class="stat"><b class="n5">104</b><span>skins</span></div>
+    </div>
+
+    <h2>What actually happens</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>It changes underneath you</h3>
+        <p>Every few seconds the whole game becomes a different one. Platformer, shoot-em-up,
+        brick breaker, rhythm game, maze chase, grappling hook, fishing, sumo, golf, plinko.
+        No loading screen, no menu. You just have to keep up.</p>
+      </div>
+      <div class="card">
+        <h3>Four bosses that cheat</h3>
+        <p>PONG, THE CURSOR, WORM KING, and THE ECHO — four delayed copies of your own
+        movement that you have to steer into each other.</p>
+      </div>
+      <div class="card">
+        <h3>1063 badges, 104 skins</h3>
+        <p>From "score 500" to things you will not find by accident. Badges unlock skins:
+        crowns, wings, lava cracks, holograms, a void cat. Every one drawn as vector art,
+        so they stay sharp on any screen.</p>
+      </div>
+      <div class="card">
+        <h3>A daily everyone shares</h3>
+        <p>One seed per day, worldwide. Same genres, same worlds, same mutators, same
+        order. No excuses.</p>
+      </div>
+      <div class="card">
+        <h3>Pass and play</h3>
+        <p>VS mode hands the phone between two people and gives both of them an identical
+        universe. Highest score wins the argument.</p>
+      </div>
+      <div class="card">
+        <h3>Fair by construction</h3>
+        <p>Ads never appear during a run — only on menus and after you have already died.
+        Nothing is behind a paywall, because there is no paywall. Works fully offline.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Screenshots</h2>
+    <div class="shots">
+      <img src="shots/01-title.png" alt="Title screen" loading="lazy">
+      <img src="shots/02-hop.png" alt="Platformer genre" loading="lazy">
+      <img src="shots/04-blast.png" alt="Shoot-em-up genre" loading="lazy">
+      <img src="shots/07-maze.png" alt="Maze genre" loading="lazy">
+      <img src="shots/08-swing.png" alt="Grappling hook genre" loading="lazy">
+      <img src="shots/09-boss-pong.png" alt="PONG boss fight" loading="lazy">
+    </div>
+    <div class="note">
+      The browser version is the same build that ships on Android, minus the ads.
+      Progress saves to whichever device you play it on and never leaves it.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <a href="play.html">Play</a>
+      <a href="privacy.html">Privacy policy</a>
+      <a href="https://github.com/BeMintalitet/TheWhateverGame">Source on GitHub</a>
+      <a href="mailto:benjaminfosskristoffersen@gmail.com">Contact</a>
+    </div>
+    <p>Built by Benjamin Foss Kristoffersen. No trackers, no analytics, no accounts —
+    the site and the game both collect nothing.</p>
+  </div>
+</footer>
+
+</body>
+</html>

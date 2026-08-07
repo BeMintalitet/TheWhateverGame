@@ -1,0 +1,34 @@
+# ---- SIGNING SECRETS — never commit these ----
+# Losing them is bad; leaking them lets anyone ship an "update" to your app.
+*.jks
+*.keystore
+keystore.properties
+
+# ---- build output ----
+android-app/node_modules/
+android-app/android/build/
+android-app/android/app/build/
+android-app/android/.gradle/
+android-app/android/local.properties
+android-app/android/capacitor-cordova-android-plugins/build/
+android-app/*.log
+android-app/android/*.log
+build/game.html
+build/game.patched.html
+
+# ---- TWG Studio: holds OAuth tokens ----
+twg-studio/config.json
+twg-studio/*.log
+
+# ---- scratch ----
+_preview_*.html
+skinsheet.html
+.tmp/
+
+# ---- release artifacts: use GitHub Releases, not the repo ----
+*.aab
+*.apk
+*.exe
+TheWhateverGame-Windows.zip
+store-assets.zip
+resources.neu

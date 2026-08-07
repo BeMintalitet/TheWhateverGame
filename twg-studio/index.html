@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TWG Studio</title>
+<style>
+:root{
+  --bg:#080810; --panel:#101019; --line:#22222e; --ink:#e8e8f2; --dim:#8b8fa3;
+  --acc:#4dd2ff; --good:#4dffa6; --warn:#ffd94d; --bad:#ff4d6d; --pur:#c084fc;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:14px/1.55 -apple-system,"Segoe UI",system-ui,sans-serif}
+header{padding:18px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;
+  position:sticky;top:0;background:rgba(8,8,16,.94);backdrop-filter:blur(8px);z-index:9}
+h1{margin:0;font:900 italic 20px/1 "Segoe UI",system-ui;letter-spacing:-.4px}
+h1 span{color:var(--acc)}
+.path{color:var(--dim);font-size:11px;margin-left:auto;font-family:ui-monospace,Consolas,monospace}
+main{display:grid;grid-template-columns:1fr 460px;gap:0;height:calc(100vh - 61px)}
+.left{overflow-y:auto;padding:20px 24px 60px}
+.right{border-left:1px solid var(--line);display:flex;flex-direction:column;background:#06060d}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px}
+.card h2{margin:0 0 4px;font:800 12px/1 system-ui;letter-spacing:1.2px;text-transform:uppercase;color:var(--acc)}
+.card p.sub{margin:0 0 14px;color:var(--dim);font-size:12px}
+label{display:block;font-size:11px;color:var(--dim);margin:10px 0 4px;font-weight:600}
+input[type=text],input[type=password]{width:100%;background:#0a0a13;border:1px solid var(--line);
+  border-radius:7px;color:var(--ink);padding:9px 11px;font-family:ui-monospace,Consolas,monospace;font-size:12px}
+input:focus{outline:none;border-color:var(--acc)}
+input.bad{border-color:var(--bad)}
+input.good{border-color:var(--good)}
+button{background:#181826;border:1px solid var(--line);color:var(--ink);border-radius:8px;
+  padding:9px 15px;font:700 12px system-ui;cursor:pointer;transition:.13s}
+button:hover:not(:disabled){border-color:var(--acc);background:#1d1d2e}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.primary{background:var(--acc);border-color:var(--acc);color:#04141c}
+button.primary:hover:not(:disabled){background:#6fdcff}
+button.go{background:var(--good);border-color:var(--good);color:#04180e;font-size:13px;padding:12px 20px}
+button.go:hover:not(:disabled){background:#7dffbe}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+td{padding:6px 4px;border-bottom:1px solid #17172180;vertical-align:top}
+td.k{color:var(--dim);width:190px}
+td.v{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;word-break:break-all}
+.pill{display:inline-block;padding:2px 8px;border-radius:20px;font:700 10px system-ui;letter-spacing:.4px}
+.pill.ok{background:#0d2a1c;color:var(--good)} .pill.no{background:#2c0f18;color:var(--bad)}
+.pill.warn{background:#2b2410;color:var(--warn)}
+#log{flex:1;overflow-y:auto;padding:14px 16px;font:11.5px/1.6 ui-monospace,Consolas,monospace;
+  white-space:pre-wrap;word-break:break-word}
+#log .l{color:#7f8496}
+#log .step{color:var(--acc);font-weight:700;margin-top:10px}
+#log .ok{color:var(--good);font-weight:700}
+#log .err{color:var(--bad);font-weight:700}
+.loghead{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;
+  font:800 11px system-ui;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim)}
+.dot{width:8px;height:8px;border-radius:50%;background:#2a2a38}
+.dot.live{background:var(--good);box-shadow:0 0 8px var(--good)}
+.chk{display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #17172180;font-size:12.5px}
+.chk input{margin:3px 0 0;accent-color:var(--good);width:15px;height:15px;flex:none}
+.chk.done span{color:#5a5f70;text-decoration:line-through}
+.grp{font:800 10px system-ui;letter-spacing:1.2px;color:var(--pur);margin:14px 0 2px;text-transform:uppercase}
+.hint{background:#0d1420;border-left:3px solid var(--acc);padding:10px 13px;border-radius:0 7px 7px 0;
+  font-size:12px;color:#a8b2c8;margin:12px 0}
+.hint b{color:var(--ink)}
+.danger{background:#1a0d12;border-left-color:var(--bad);color:#d9a5b2}
+a{color:var(--acc)}
+.small{font-size:11px;color:var(--dim)}
+select{background:#0a0a13;border:1px solid var(--line);color:var(--ink);border-radius:7px;padding:8px 10px;
+  font-size:12px;width:100%}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>TWG <span>STUDIO</span></h1>
+  <span class="small" id="ver"></span>
+  <span class="path" id="root"></span>
+</header>
+
+<main>
+<div class="left">
+
+  <!-- ============ STATUS ============ -->
+  <div class="card">
+    <h2>Status</h2>
+    <p class="sub">Everything the build needs, checked live.</p>
+    <table id="doctor"><tr><td class="k">running checks…</td></tr></table>
+    <div class="row">
+      <button onclick="refresh()">Re-check</button>
+      <button onclick="openF('root')">Open project folder</button>
+      <button onclick="openF('out')">Open build output</button>
+      <button onclick="openF('store')">Open store assets</button>
+    </div>
+  </div>
+
+  <!-- ============ ADMOB ============ -->
+  <div class="card">
+    <h2>AdMob IDs</h2>
+    <p class="sub">These go into the game and the Android manifest. Paste them, or pull them
+      straight out of your account below.</p>
+
+    <label>App ID <span class="small">— has a <b>~</b> in it</span></label>
+    <input type="text" id="appId" placeholder="ca-app-pub-0000000000000000~0000000000">
+    <label>Banner unit <span class="small">— has a <b>/</b> in it</span></label>
+    <input type="text" id="banner" placeholder="ca-app-pub-0000000000000000/0000000000">
+    <label>Interstitial unit</label>
+    <input type="text" id="interstitial" placeholder="ca-app-pub-0000000000000000/0000000000">
+    <label>Rewarded unit</label>
+    <input type="text" id="rewarded" placeholder="ca-app-pub-0000000000000000/0000000000">
+
+    <div class="row">
+      <button class="primary" onclick="saveIds()">Save IDs into every file</button>
+      <span class="small" id="idsMsg"></span>
+    </div>
+
+    <div class="hint danger">
+      <b>Never tap your own live ads on an unregistered phone.</b> AdMob reads that as
+      invalid traffic and suspending an account is not something you can appeal quickly.
+      Add your device to <code>AD_TEST_DEVICES</code> in the game HTML first — the SDK
+      prints the exact id to logcat on the first ad request.
+    </div>
+  </div>
+
+  <!-- ============ CONNECT ============ -->
+  <div class="card">
+    <h2>Connect AdMob <span class="small" id="connState"></span></h2>
+    <p class="sub">One-time setup. After this, one click pulls your App ID and all three
+      ad unit IDs out of your account and writes them everywhere.</p>
+
+    <div class="hint">
+      <b>You need an OAuth client first</b> (free, 3 minutes, once ever):<br>
+      1. <a href="https://console.cloud.google.com/projectcreate" target="_blank">Create a Google Cloud project</a><br>
+      2. <a href="https://console.cloud.google.com/apis/library/admob.googleapis.com" target="_blank">Enable the AdMob API</a><br>
+      3. OAuth consent screen → External → add your own Gmail under <b>Test users</b><br>
+      4. Credentials → Create credentials → <b>OAuth client ID</b> → <b>Web application</b><br>
+      5. Authorised redirect URI: <code>http://localhost:4747/oauth/callback</code><br>
+      6. Copy the client ID and secret into the two boxes below.
+    </div>
+
+    <label>OAuth client ID</label>
+    <input type="text" id="clientId" placeholder="1234-abcd.apps.googleusercontent.com">
+    <label>OAuth client secret</label>
+    <input type="password" id="clientSecret" placeholder="GOCSPX-…">
+    <div class="row">
+      <button onclick="connect()">Save &amp; connect to AdMob</button>
+      <button onclick="fetchAdmob()">Fetch my apps &amp; units</button>
+    </div>
+
+    <div id="admobPick" style="display:none">
+      <label>Which app?</label>
+      <select id="appPick"></select>
+      <div class="row">
+        <button class="primary" onclick="applyFromAdmob()">Use this app's IDs</button>
+      </div>
+      <div class="small" id="unitList" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <!-- ============ BUILD ============ -->
+  <div class="card">
+    <h2>Build &amp; ship</h2>
+    <p class="sub">Strips test mode, syncs Capacitor, runs Gradle, then verifies the result
+      before it lets you call it done.</p>
+
+    <table>
+      <tr><td class="k">versionCode</td><td class="v">
+        <input type="text" id="vcode" style="width:80px;display:inline-block">
+        <button onclick="bump()" style="padding:5px 10px">+1</button>
+        <span class="small">Play rejects a re-used versionCode.</span>
+      </td></tr>
+      <tr><td class="k">versionName</td><td class="v">
+        <input type="text" id="vname" style="width:110px;display:inline-block"></td></tr>
+      <tr><td class="k">AAB</td><td class="v" id="aabInfo">—</td></tr>
+      <tr><td class="k">APK</td><td class="v" id="apkInfo">—</td></tr>
+    </table>
+
+    <div class="row">
+      <button class="go" id="buildBtn" onclick="build()">▶  BUILD RELEASE</button>
+      <button onclick="verifyOnly()">Verify only</button>
+      <button onclick="install()">Install APK on phone</button>
+    </div>
+  </div>
+
+  <!-- ============ CHECKLIST ============ -->
+  <div class="card">
+    <h2>Launch checklist</h2>
+    <p class="sub">Ticks are saved. This is the order that avoids a rejection.</p>
+    <div id="checklist"></div>
+  </div>
+
+</div>
+
+<div class="right">
+  <div class="loghead"><span class="dot" id="dot"></span> Activity
+    <button style="margin-left:auto;padding:4px 10px" onclick="document.getElementById('log').innerHTML=''">Clear</button>
+  </div>
+  <div id="log"></div>
+</div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const RE_APP = /^ca-app-pub-\d{16}~\d{10}$/;
+const RE_UNIT = /^ca-app-pub-\d{16}\/\d{10}$/;
+let admobData = null;
+
+/* ---- log stream ---- */
+const es = new EventSource('/events');
+es.onopen = () => $('dot').classList.add('live');
+es.onerror = () => $('dot').classList.remove('live');
+es.onmessage = e => {
+  const m = JSON.parse(e.data);
+  const cls = { log:'l', ok:'ok', err:'err', step:'step' }[m.type];
+  if (!cls) { if (m.type === 'done') { $('buildBtn').disabled = false; refresh(); } return; }
+  const d = document.createElement('div');
+  d.className = cls;
+  d.textContent = (m.type==='ok'?'✓ ':m.type==='err'?'✗ ':m.type==='step'?'— ':'') + m.data;
+  $('log').appendChild(d);
+  $('log').scrollTop = 1e9;
+  if (m.type === 'err') $('buildBtn').disabled = false;
+};
+
+/* ---- state ---- */
+async function refresh() {
+  const s = await (await fetch('/api/state')).json();
+  $('root').textContent = s.root;
+  $('ver').textContent = 'v' + s.version.name + ' (' + s.version.code + ')';
+  for (const k of ['appId','banner','interstitial','rewarded']) {
+    $(k).value = s.ids[k] || '';
+    validate(k);
+  }
+  $('vcode').value = s.version.code;
+  $('vname').value = s.version.name;
+  $('aabInfo').textContent = s.aab.exists ? (s.aab.size + '  ·  ' + s.aab.time) : 'not built yet';
+  $('apkInfo').textContent = s.apk.exists ? (s.apk.size + '  ·  ' + s.apk.time) : 'not built yet';
+  $('connState').innerHTML = s.oauth.connected
+    ? '<span class="pill ok">connected</span>'
+    : (s.oauth.configured ? '<span class="pill warn">client saved</span>' : '<span class="pill no">not set up</span>');
+
+  // checklist
+  const box = $('checklist'); box.innerHTML = '';
+  let group = '';
+  for (const c of s.checklist) {
+    if (c.group !== group) { group = c.group;
+      const g = document.createElement('div'); g.className = 'grp'; g.textContent = group; box.appendChild(g); }
+    const d = document.createElement('label');
+    d.className = 'chk' + (c.done ? ' done' : '');
+    d.innerHTML = '<input type="checkbox" ' + (c.done ? 'checked' : '') + '><span>' + c.text + '</span>';
+    d.querySelector('input').onchange = async e => {
+      await fetch('/api/check', { method:'POST', body: JSON.stringify({ key:c.key, done:e.target.checked }) });
+      d.classList.toggle('done', e.target.checked);
+    };
+    box.appendChild(d);
+  }
+  // doctor
+  const rows = await (await fetch('/api/doctor')).json();
+  $('doctor').innerHTML = rows.map(r =>
+    '<tr><td class="k">' + r.name + '</td><td class="v">' +
+    '<span class="pill ' + (r.ok ? 'ok">OK' : 'no">CHECK') + '</span> ' + r.detail + '</td></tr>').join('');
+}
+function validate(k) {
+  const el = $(k), v = el.value.trim();
+  const re = k === 'appId' ? RE_APP : RE_UNIT;
+  el.classList.toggle('good', re.test(v));
+  el.classList.toggle('bad', v.length > 0 && !re.test(v));
+}
+for (const k of ['appId','banner','interstitial','rewarded'])
+  document.addEventListener('DOMContentLoaded', () => $(k).addEventListener('input', () => validate(k)));
+
+async function saveIds() {
+  const ids = {};
+  for (const k of ['appId','banner','interstitial','rewarded']) ids[k] = $(k).value.trim();
+  const r = await (await fetch('/api/setids', { method:'POST', body: JSON.stringify(ids) })).json();
+  $('idsMsg').innerHTML = r.ok
+    ? '<span class="pill ok">written to ' + r.touched + ' files</span>'
+    : '<span class="pill no">' + r.errors.join(' · ') + '</span>';
+  if (r.ok) refresh();
+}
+async function bump() {
+  const code = Number($('vcode').value) + 1;
+  await fetch('/api/version', { method:'POST', body: JSON.stringify({ code, name: $('vname').value.trim() }) });
+  refresh();
+}
+async function build() {
+  $('buildBtn').disabled = true;
+  $('log').innerHTML = '';
+  await fetch('/api/build', { method:'POST', body: JSON.stringify({ deep: true }) });
+}
+async function verifyOnly() { $('log').innerHTML=''; await fetch('/api/verify', { method:'POST' }); }
+async function install()    { await fetch('/api/install', { method:'POST' }); }
+async function openF(what)  { await fetch('/api/open', { method:'POST', body: JSON.stringify({ what }) }); }
+
+async function connect() {
+  const clientId = $('clientId').value.trim(), clientSecret = $('clientSecret').value.trim();
+  if (!clientId || !clientSecret) { alert('Paste both the client ID and the secret first.'); return; }
+  const r = await (await fetch('/api/oauth/save', { method:'POST', body: JSON.stringify({ clientId, clientSecret }) })).json();
+  window.open(r.url, '_blank');
+}
+async function fetchAdmob() {
+  const r = await (await fetch('/api/admob/fetch')).json();
+  if (!r.ok) { alert(r.error); return; }
+  admobData = r.data;
+  const sel = $('appPick');
+  sel.innerHTML = r.data.apps.map(a =>
+    '<option value="' + a.appId + '">' + a.displayName + '  (' + a.platform + ')  ' + a.appId + '</option>').join('');
+  $('admobPick').style.display = 'block';
+  showUnits();
+  sel.onchange = showUnits;
+}
+function showUnits() {
+  if (!admobData) return;
+  const appId = $('appPick').value;
+  const mine = admobData.units.filter(u => u.appId === appId);
+  $('unitList').innerHTML = mine.length
+    ? mine.map(u => '• <b>' + u.displayName + '</b> — ' + u.format + ' — <code>' + u.adUnitId + '</code>').join('<br>')
+    : 'No ad units found for this app yet.';
+}
+async function applyFromAdmob() {
+  const r = await (await fetch('/api/admob/apply', { method:'POST', body: JSON.stringify({ appId: $('appPick').value }) })).json();
+  if (!r.ok) alert((r.errors || ['failed']).join('\n'));
+  refresh();
+}
+refresh();
+</script>
+</body>
+</html>
