@@ -70,9 +70,13 @@ const step = s => emit('step', s);
 /* ------------------------------------------------------------------ */
 function run(cmd, args, opts) {
   return new Promise(resolve => {
-    log('> ' + cmd + ' ' + args.join(' '));
+    // One command string, no args array: Node warns (DEP0190) about unescaped
+    // args when shell:true is combined with an args array, and we need the
+    // shell for gradlew.bat / npx on Windows. Call sites already quote paths.
+    const line = [cmd].concat(args || []).join(' ');
+    log('> ' + line);
     const env = Object.assign({}, process.env, { JAVA_HOME: P.jbr }, (opts && opts.env) || {});
-    const ch = spawn(cmd, args, { cwd: (opts && opts.cwd) || ROOT, env, shell: true });
+    const ch = spawn(line, { cwd: (opts && opts.cwd) || ROOT, env, shell: true });
     let out = '';
     const onData = b => { const s = b.toString(); out += s; s.split(/\r?\n/).forEach(l => l.trim() && log('  ' + l)); };
     ch.stdout.on('data', onData);
@@ -520,8 +524,44 @@ const server = http.createServer(async (req, res) => {
     send(500, { error: e.message });
   }
 });
+const URL_SELF = 'http://localhost:' + PORT;
+function openBrowser() {
+  spawn('cmd', ['/c', 'start', '""', URL_SELF], { detached: true, shell: false });
+}
+
+/* If the port is taken, work out WHY before shouting about it. Nine times out of
+   ten it is a copy of TWG Studio the user forgot they left running, and the right
+   answer is to quietly open the browser rather than dump a stack trace. */
+server.on('error', e => {
+  if (e.code !== 'EADDRINUSE') {
+    console.error('\n  TWG Studio could not start: ' + e.message + '\n');
+    process.exit(1);
+  }
+  http.get(URL_SELF + '/api/state', res => {
+    let d = '';
+    res.on('data', c => d += c);
+    res.on('end', () => {
+      let mine = false;
+      try { mine = !!JSON.parse(d).version; } catch (x) {}
+      if (mine) {
+        console.log('\n  TWG Studio is already running - opening it.\n  ' + URL_SELF + '\n');
+        openBrowser();
+        setTimeout(() => process.exit(0), 800);
+      } else {
+        portBusy();
+      }
+    });
+  }).on('error', portBusy);
+});
+function portBusy() {
+  console.error(
+    '\n  Port ' + PORT + ' is in use by something that is not TWG Studio.\n' +
+    '\n  Find it with:    netstat -ano | findstr :' + PORT +
+    '\n  Then stop it, or change PORT at the top of server.js.\n');
+  process.exit(1);
+}
+
 server.listen(PORT, () => {
-  const url = 'http://localhost:' + PORT;
-  console.log('\n  TWG STUDIO running at ' + url + '\n  project: ' + ROOT + '\n');
-  spawn('cmd', ['/c', 'start', '""', url], { detached: true, shell: false });
+  console.log('\n  TWG STUDIO running at ' + URL_SELF + '\n  project: ' + ROOT + '\n');
+  openBrowser();
 });
