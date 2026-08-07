@@ -233,8 +233,8 @@ def feature(w=1024, h=500):
         d.text((x, int(H*0.22)), 'THE',      font=font(int(H*0.13)), fill=(255,255,255,58))
         d.text((x, int(H*0.36)), 'WHATEVER', font=font(int(H*0.20)), fill=(255,255,255,255))
         d.text((x, int(H*0.585)), 'GAME',    font=font(int(H*0.13)), fill=(255,255,255,58))
-        d.text((x, int(H*0.75)), '31 GENRES  ·  4 BOSSES  ·  9 WORLDS  ·  1 CAT',
-               font=font(int(H*0.058)), fill=(140, 215, 255, 255))
+        d.text((x, int(H*0.755)), '31 GENRES  ·  4 BOSSES  ·  9 WORLDS',
+               font=font(int(H*0.052)), fill=(140, 215, 255, 255))
     except Exception as e:
         print('  (no font, text skipped:', e, ')')
     return img.convert('RGB').resize((w, h), Image.LANCZOS)
