@@ -1,0 +1,14 @@
+[main bb2525e] screenshots: 32 store shots across phone/7in/10in/chromebook, capturable from TWG Studio in one click. Fix: title mascot overlapped the wordmark on short/landscape viewports.
+ 41 files changed, 192 insertions(+), 26 deletions(-)
+ create mode 100644 gp7.log
+ create mode 100644 store/screenshots/chromebook/01-title.png
+ create mode 100644 store/screenshots/chromebook/02-hop.png
+ create mode 100644 store/screenshots/chromebook/03-blast.png
+ create mode 100644 store/screenshots/chromebook/04-maze.png
+ create mode 100644 store/screenshots/chromebook/05-swing.png
+ create mode 100644 store/screenshots/chromebook/06-boss-echo.png
+ create mode 100644 store/screenshots/chromebook/07-badges.png
+ create mode 100644 store/screenshots/chromebook/08-skins.png
+To https://github.com/BeMintalitet/TheWhateverGame.git
+   737be1f..bb2525e  main -> main
+EXIT=0 
