@@ -210,6 +210,36 @@ summary{cursor:pointer;font:800 11px system-ui;letter-spacing:1.1px;text-transfo
       <code>twg-studio/projects/</code>, so it survives restarts and travels with the repo.</p>
   </div>
 
+
+  <!-- ============ SCREENSHOTS ============ -->
+  <div class="card">
+    <h2>Store screenshots</h2>
+    <p class="sub">Rendered from the release build at exact Play Store pixel sizes —
+      not cropped from a window, so there is no browser chrome and no wrong dimensions.</p>
+
+    <table id="shotTable"><tr><td class="k">checking…</td></tr></table>
+
+    <div class="row">
+      <button class="primary" onclick="captureShots()">Capture all screenshots</button>
+      <button onclick="refreshShots()">Re-check</button>
+      <button onclick="openF('shots')">Open screenshot folder</button>
+    </div>
+
+    <div class="hint">
+      A tab opens and walks the game through eight scenes at each size. It takes about
+      two minutes. Leave the tab in the foreground — a background tab throttles the
+      animation frames and the poses come out flat.
+    </div>
+
+    <div class="hint danger">
+      <b>Play Games on PC and Android XR are deliberately not generated.</b>
+      This is a portrait, one-thumb game. Shipping it to a desktop or a headset would
+      earn bad reviews for a surface it was never designed for. Leave those sections
+      empty in Play Console. Chromebook is different — it runs Android apps in a
+      resizable window and the game handles landscape properly.
+    </div>
+  </div>
+
   <!-- ============ BUILD ============ -->
   <div class="card">
     <h2>Build &amp; ship</h2>
@@ -490,6 +520,34 @@ function renderProject() {
   row(ds, 'Do NOT declare', d.doNotDeclare);
 }
 loadProjects();
+
+
+/* ---------- screenshots ---------- */
+const SHOT_LABEL = { 'phone':'Phone 1080x1920', 'tablet-7in':'7-inch tablet 1200x1920',
+  'tablet-10in':'10-inch tablet 1600x2560', 'chromebook':'Chromebook 1920x1080' };
+async function refreshShots(){
+  const rows = await (await fetch('/api/shots/status')).json();
+  $('shotTable').innerHTML = rows.map(r =>
+    '<tr><td class="k">' + (SHOT_LABEL[r.folder] || r.folder) + '</td><td class="v">' +
+    '<span class="pill ' + (r.count === 8 ? 'ok">8 shots' : (r.count ? 'warn">' + r.count + ' shots' : 'no">none')) +
+    '</span> ' + r.time + '</td></tr>').join('');
+}
+async function captureShots(){
+  $('log').innerHTML = '';
+  await fetch('/api/shots/clear', { method:'POST' });
+  const r = await (await fetch('/api/shots/build', { method:'POST' })).json();
+  if (!r.ok) { alert('Could not build the capture rig. Is Python on your PATH?'); return; }
+  const w = window.open(r.url, '_blank');
+  if (!w) alert('Allow pop-ups for localhost, then press Capture again.');
+  // the rig posts each shot as it goes; poll until all four sets are full
+  const t = setInterval(async () => {
+    await refreshShots();
+    const rows = await (await fetch('/api/shots/status')).json();
+    if (rows.every(x => x.count === 8)) clearInterval(t);
+  }, 4000);
+  setTimeout(() => clearInterval(t), 300000);
+}
+refreshShots();
 
 refresh();
 </script>

@@ -1,0 +1,32 @@
+[main 737be1f] screenshots: 24 store shots (phone 1080x1920, 7in 1200x1920, 10in 1600x2560) rendered at exact size from the release build via a TWG Studio capture rig. Fix: THE ECHO could be beaten by standing still - all four echoes converged on one point and annihilated each other.
+ 31 files changed, 6942 insertions(+), 6 deletions(-)
+ create mode 100644 build/make_shots.py
+ create mode 100644 gp6.log
+ create mode 100644 store/screenshots/phone/01-title.png
+ create mode 100644 store/screenshots/phone/02-hop.png
+ create mode 100644 store/screenshots/phone/03-blast.png
+ create mode 100644 store/screenshots/phone/04-maze.png
+ create mode 100644 store/screenshots/phone/05-swing.png
+ create mode 100644 store/screenshots/phone/06-boss-echo.png
+ create mode 100644 store/screenshots/phone/07-badges.png
+ create mode 100644 store/screenshots/phone/08-skins.png
+ create mode 100644 store/screenshots/tablet-10in/01-title.png
+ create mode 100644 store/screenshots/tablet-10in/02-hop.png
+ create mode 100644 store/screenshots/tablet-10in/03-blast.png
+ create mode 100644 store/screenshots/tablet-10in/04-maze.png
+ create mode 100644 store/screenshots/tablet-10in/05-swing.png
+ create mode 100644 store/screenshots/tablet-10in/06-boss-echo.png
+ create mode 100644 store/screenshots/tablet-10in/07-badges.png
+ create mode 100644 store/screenshots/tablet-10in/08-skins.png
+ create mode 100644 store/screenshots/tablet-7in/01-title.png
+ create mode 100644 store/screenshots/tablet-7in/02-hop.png
+ create mode 100644 store/screenshots/tablet-7in/03-blast.png
+ create mode 100644 store/screenshots/tablet-7in/04-maze.png
+ create mode 100644 store/screenshots/tablet-7in/05-swing.png
+ create mode 100644 store/screenshots/tablet-7in/06-boss-echo.png
+ create mode 100644 store/screenshots/tablet-7in/07-badges.png
+ create mode 100644 store/screenshots/tablet-7in/08-skins.png
+ create mode 100644 twg-studio/shots/shooter.html
+To https://github.com/BeMintalitet/TheWhateverGame.git
+   0807777..737be1f  main -> main
+EXIT=0 

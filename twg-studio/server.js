@@ -528,6 +528,33 @@ const server = http.createServer(async (req, res) => {
       ok('captured ' + b.count + ' screenshots into store/screenshots/');
       return send(200, { ok: true });
     }
+    if (u.pathname === '/api/shots/status') {
+      const base = path.join(ROOT, 'store', 'screenshots');
+      const out = [];
+      for (const f of ['phone', 'tablet-7in', 'tablet-10in', 'chromebook']) {
+        const d = path.join(base, f);
+        let files = [];
+        try { files = fs.readdirSync(d).filter(x => x.endsWith('.png')); } catch (e) {}
+        out.push({ folder: f, count: files.length,
+          time: files.length ? mtime(path.join(d, files[0])) : '—' });
+      }
+      return send(200, out);
+    }
+    if (u.pathname === '/api/shots/build') {
+      // regenerate the rig from the CURRENT release build, then hand back the URL
+      const r = await run('python', [JSON.stringify(path.join(ROOT, 'build', 'make_shots.py'))]);
+      if (r.code !== 0) { err('could not build the shot rig - is Python installed?'); return send(200, { ok: false }); }
+      ok('shot rig rebuilt from the current release build');
+      return send(200, { ok: true, url: '/shots/?t=' + Date.now() });
+    }
+    if (u.pathname === '/api/shots/clear') {
+      const base = path.join(ROOT, 'store', 'screenshots');
+      for (const f of ['phone', 'tablet-7in', 'tablet-10in', 'chromebook']) {
+        try { fs.rmSync(path.join(base, f), { recursive: true, force: true }); } catch (e) {}
+      }
+      ok('cleared previous screenshots');
+      return send(200, { ok: true });
+    }
     if (u.pathname === '/api/doctor')  return send(200, await doctor());
     if (u.pathname === '/api/setids')  return send(200, setIds(await body()));
     if (u.pathname === '/api/version') { const b = await body(); return send(200, setVersion(b.code, b.name)); }
@@ -583,7 +610,8 @@ const server = http.createServer(async (req, res) => {
     }
     if (u.pathname === '/api/open') {
       const b = await body();
-      const target = { root: ROOT, store: path.join(ROOT, 'store'), out: path.dirname(P.aab) }[b.what] || ROOT;
+      const target = { root: ROOT, store: path.join(ROOT, 'store'), out: path.dirname(P.aab),
+        shots: path.join(ROOT, 'store', 'screenshots') }[b.what] || ROOT;
       spawn('explorer', [target], { detached: true, shell: true });
       return send(200, { ok: true });
     }

@@ -3229,7 +3229,11 @@ const ModeEcho={
     this.trail=[];this.echoes=[];this.hp=4;this.done=false;this.timer=34;this.morphIn=0;this.warn=0;
     P.x=W*0.5;P.y=H*0.6;
     const cols=['#8ab4ff','#c084fc','#4dffa6','#ff6b9d'];
-    for(let i=0;i<4;i++)this.echoes.push({delay:0.85+i*0.42,alive:true,x:W*0.5,y:H*0.4,px:W*0.5,py:H*0.4,c:cols[i],grace:1.6});
+    for(let i=0;i<4;i++)this.echoes.push({delay:0.85+i*0.42,alive:true,
+      x:W*0.5,y:H*0.4,px:W*0.5,py:H*0.4,c:cols[i],grace:1.6,
+      // ring offset: without it a motionless player made all four converge on
+      // one point and cancel out, so standing still beat the fight instantly
+      ang:i*TAU/4, off:34});
   },
   sampleAt(age){
     const T=this.trail;
@@ -3269,7 +3273,12 @@ const ModeEcho={
     const live=this.echoes.filter(e=>e.alive);
     for(const e of live){
       const s=this.sampleAt(e.delay);
-      if(s){e.px=e.x;e.py=e.y;e.x+=(s.x-e.x)*Math.min(1,7*dt);e.y+=(s.y-e.y)*Math.min(1,7*dt);}
+      if(s){
+        e.ang+=dt*0.7;
+        const tx=s.x+Math.cos(e.ang)*e.off, ty=s.y+Math.sin(e.ang)*e.off;
+        e.px=e.x;e.py=e.y;
+        e.x+=(tx-e.x)*Math.min(1,7*dt);e.y+=(ty-e.y)*Math.min(1,7*dt);
+      }
       if(e.grace>0)e.grace-=dt;
       else if(dist2(P.x,P.y,e.x,e.y)<(P.r+13)**2)hurt('echoed');
     }
@@ -6270,10 +6279,15 @@ drawTitle=function(t){
     ctx.fillText(MODES.length+' GENRES · '+BOSSES.length+' BOSSES · '+WORLDS.length+' WORLDS · 1 CAT · 1 ∅',cx,cy+size*1.6+22);
   }
   // the bit, wearing whatever you equipped
-  P.x=cx;P.y=Math.min(by-56,cy+size*1.6+(topRoom>190?58:26));
-  P.y+=Math.sin(t*3)*7;P.look=Math.sin(t*1.3);P.lookY=0.2;
-  drawSkinAt(P.x,P.y,Math.min(19,topRoom*0.06+11),curSkin(),
-    {t,look:P.look,lookY:P.lookY,squish:0,mood:'hype',blink:(t%3.4)<0.11});
+  // In landscape (or any short viewport) there is no vertical room between the
+  // wordmark and the buttons, and the mascot used to sit on top of "GAME".
+  // Below that threshold it is simply left out rather than drawn overlapping.
+  const bitY=cy+size*1.6+(topRoom>190?58:26);
+  if(topRoom>210&&bitY<by-52){
+    P.x=cx;P.y=bitY+Math.sin(t*3)*7;P.look=Math.sin(t*1.3);P.lookY=0.2;
+    drawSkinAt(P.x,P.y,Math.min(19,topRoom*0.06+11),curSkin(),
+      {t,look:P.look,lookY:P.lookY,squish:0,mood:'hype',blink:(t%3.4)<0.11});
+  }
   // first-open reward
   if(loginReward&&loginReward.bits>0&&titleT<7){
     const al=clamp(Math.min(titleT*2,(7-titleT)*2),0,1);
@@ -6547,7 +6561,12 @@ setInterval(()=>flushStats(false),20000);
 const SIZES = [
   { folder:'phone',      w:1080, h:1920, scale:2.4 },
   { folder:'tablet-7in', w:1200, h:1920, scale:2.0 },
-  { folder:'tablet-10in',w:1600, h:2560, scale:2.6 }
+  { folder:'tablet-10in',w:1600, h:2560, scale:2.6 },
+  /* Chromebooks run Android apps in a resizable window and the game handles
+     landscape properly, so these are real, not letterboxed fakes. Play Games on
+     PC and Android XR are deliberately absent: this is a portrait, one-thumb
+     game and shipping it to those surfaces would earn bad reviews. */
+  { folder:'chromebook', w:1920, h:1080, scale:2.0 }
 ];
 
 /* Lock the canvas to an exact pixel size. The game normally derives W/H from

@@ -29,7 +29,12 @@ RIG = r"""
 const SIZES = [
   { folder:'phone',      w:1080, h:1920, scale:2.4 },
   { folder:'tablet-7in', w:1200, h:1920, scale:2.0 },
-  { folder:'tablet-10in',w:1600, h:2560, scale:2.6 }
+  { folder:'tablet-10in',w:1600, h:2560, scale:2.6 },
+  /* Chromebooks run Android apps in a resizable window and the game handles
+     landscape properly, so these are real, not letterboxed fakes. Play Games on
+     PC and Android XR are deliberately absent: this is a portrait, one-thumb
+     game and shipping it to those surfaces would earn bad reviews. */
+  { folder:'chromebook', w:1920, h:1080, scale:2.0 }
 ];
 
 /* Lock the canvas to an exact pixel size. The game normally derives W/H from

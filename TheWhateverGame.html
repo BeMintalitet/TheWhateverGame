@@ -6287,10 +6287,15 @@ drawTitle=function(t){
     ctx.fillText(MODES.length+' GENRES · '+BOSSES.length+' BOSSES · '+WORLDS.length+' WORLDS · 1 CAT · 1 ∅',cx,cy+size*1.6+22);
   }
   // the bit, wearing whatever you equipped
-  P.x=cx;P.y=Math.min(by-56,cy+size*1.6+(topRoom>190?58:26));
-  P.y+=Math.sin(t*3)*7;P.look=Math.sin(t*1.3);P.lookY=0.2;
-  drawSkinAt(P.x,P.y,Math.min(19,topRoom*0.06+11),curSkin(),
-    {t,look:P.look,lookY:P.lookY,squish:0,mood:'hype',blink:(t%3.4)<0.11});
+  // In landscape (or any short viewport) there is no vertical room between the
+  // wordmark and the buttons, and the mascot used to sit on top of "GAME".
+  // Below that threshold it is simply left out rather than drawn overlapping.
+  const bitY=cy+size*1.6+(topRoom>190?58:26);
+  if(topRoom>210&&bitY<by-52){
+    P.x=cx;P.y=bitY+Math.sin(t*3)*7;P.look=Math.sin(t*1.3);P.lookY=0.2;
+    drawSkinAt(P.x,P.y,Math.min(19,topRoom*0.06+11),curSkin(),
+      {t,look:P.look,lookY:P.lookY,squish:0,mood:'hype',blink:(t%3.4)<0.11});
+  }
   // first-open reward
   if(loginReward&&loginReward.bits>0&&titleT<7){
     const al=clamp(Math.min(titleT*2,(7-titleT)*2),0,1);

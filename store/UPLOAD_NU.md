@@ -190,12 +190,21 @@ It's called THE WHATEVER GAME because that's the only honest name for it.
 |---|---|
 | App icon 512×512 | `store/icons/icon-512.png` |
 | Feature graphic 1024×500 | `store/icons/feature-graphic-1024x500.png` |
-| Screenshots | `store/screenshots/*.png` — **tag nye først** |
+| Telefon-screenshots | `store/screenshots/phone/` — 8 stk, 1080×1920 |
+| 7" tablet | `store/screenshots/tablet-7in/` — 8 stk, 1200×1920 |
+| 10" tablet | `store/screenshots/tablet-10in/` — 8 stk, 1600×2560 |
+| Chromebook | `store/screenshots/chromebook/` — 8 stk, 1920×1080 |
 
-> Screenshot-sættet er fra før skins, badges og profilskærmen fandtes. Tag otte nye:
-> titel, badge-listen, skins-gitteret, profil/mastery, to-tre genrer, en boss, og en
-> verden med et mutator-banner. Åbn `TheWhateverGame.html` i Chrome, tryk F12 →
-> device toolbar → 1080×1920, og skyd derfra.
+Alle 32 er taget. Skal du have nye efter en spilændring: TWG Studio →
+**Store screenshots → Capture all screenshots**. Det tager cirka to minutter.
+
+### Play Games på pc, og Android XR
+
+**Lad begge sektioner stå tomme.** Spillet er låst i portræt og designet til én
+tommelfinger. Udgiver du det til en desktop eller et headset, bliver det bedømt på en
+overflade det aldrig var tænkt til, og det koster stjerner. Chromebook er en
+undtagelse — den kører Android-apps i et vindue, spillet håndterer landskab korrekt,
+og de screenshots ligger klar.
 
 ---
 
