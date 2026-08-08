@@ -1,0 +1,6 @@
+[main 0807777] twg-studio: multi-project support with an editable Play Console panel (copy buttons, store settings, content rating, data safety) saved back to projects/*.json
+ 4 files changed, 174 insertions(+), 37 deletions(-)
+ create mode 100644 gp5.log
+To https://github.com/BeMintalitet/TheWhateverGame.git
+   e581570..0807777  main -> main
+EXIT=0 

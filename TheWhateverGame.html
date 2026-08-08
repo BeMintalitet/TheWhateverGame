@@ -3234,7 +3234,11 @@ const ModeEcho={
     this.trail=[];this.echoes=[];this.hp=4;this.done=false;this.timer=34;this.morphIn=0;this.warn=0;
     P.x=W*0.5;P.y=H*0.6;
     const cols=['#8ab4ff','#c084fc','#4dffa6','#ff6b9d'];
-    for(let i=0;i<4;i++)this.echoes.push({delay:0.85+i*0.42,alive:true,x:W*0.5,y:H*0.4,px:W*0.5,py:H*0.4,c:cols[i],grace:1.6});
+    for(let i=0;i<4;i++)this.echoes.push({delay:0.85+i*0.42,alive:true,
+      x:W*0.5,y:H*0.4,px:W*0.5,py:H*0.4,c:cols[i],grace:1.6,
+      // ring offset: without it a motionless player made all four converge on
+      // one point and cancel out, so standing still beat the fight instantly
+      ang:i*TAU/4, off:34});
   },
   sampleAt(age){
     const T=this.trail;
@@ -3274,7 +3278,12 @@ const ModeEcho={
     const live=this.echoes.filter(e=>e.alive);
     for(const e of live){
       const s=this.sampleAt(e.delay);
-      if(s){e.px=e.x;e.py=e.y;e.x+=(s.x-e.x)*Math.min(1,7*dt);e.y+=(s.y-e.y)*Math.min(1,7*dt);}
+      if(s){
+        e.ang+=dt*0.7;
+        const tx=s.x+Math.cos(e.ang)*e.off, ty=s.y+Math.sin(e.ang)*e.off;
+        e.px=e.x;e.py=e.y;
+        e.x+=(tx-e.x)*Math.min(1,7*dt);e.y+=(ty-e.y)*Math.min(1,7*dt);
+      }
       if(e.grace>0)e.grace-=dt;
       else if(dist2(P.x,P.y,e.x,e.y)<(P.r+13)**2)hurt('echoed');
     }

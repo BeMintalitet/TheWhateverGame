@@ -502,6 +502,32 @@ const server = http.createServer(async (req, res) => {
       ok('saved ' + proj._file);
       return send(200, { ok: true });
     }
+    /* ---- screenshot rig ----------------------------------------------
+       The game is a canvas app, so a cropped window screenshot would be the
+       wrong pixel size and full of browser chrome. Instead we serve a page
+       that renders the game at exact Play Store dimensions and posts each
+       frame back here as a PNG. Served from this origin so there is no CORS. */
+    if (u.pathname === '/shots/') {
+      const f = path.join(STUDIO, 'shots', 'shooter.html');
+      if (!exists(f)) { res.writeHead(404); return res.end('run the shot builder first'); }
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      return res.end(readf(f));
+    }
+    if (u.pathname === '/api/shot') {
+      const b = await body();
+      const dir = path.join(ROOT, 'store', 'screenshots', b.folder || 'phone');
+      fs.mkdirSync(dir, { recursive: true });
+      const png = Buffer.from(String(b.dataUrl).split(',')[1], 'base64');
+      const file = path.join(dir, b.name);
+      fs.writeFileSync(file, png);
+      log('  shot ' + (b.folder || 'phone') + '/' + b.name + '  ' + (png.length / 1024).toFixed(0) + ' KB');
+      return send(200, { ok: true, bytes: png.length });
+    }
+    if (u.pathname === '/api/shot/done') {
+      const b = await body();
+      ok('captured ' + b.count + ' screenshots into store/screenshots/');
+      return send(200, { ok: true });
+    }
     if (u.pathname === '/api/doctor')  return send(200, await doctor());
     if (u.pathname === '/api/setids')  return send(200, setIds(await body()));
     if (u.pathname === '/api/version') { const b = await body(); return send(200, setVersion(b.code, b.name)); }
