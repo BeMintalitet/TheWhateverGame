@@ -30,14 +30,39 @@ const AD_UNITS={
   interstitial: 'ca-app-pub-5434609640567182/6462429546',
   rewarded:     'ca-app-pub-5434609640567182/3039289938'
 };
+/* ---- diagnostics: every ad failure is recorded, never swallowed ---- */
+ADS.log=[];
+function adLog(msg,isErr){
+  const line=(isErr?'! ':'  ')+msg;
+  ADS.log.push(line); if(ADS.log.length>24)ADS.log.shift();
+  try{console[isErr?'warn':'log']('[ads] '+msg);}catch(e){}
+}
+/* The Capacitor runtime is injected natively, but `Capacitor.Plugins.AdMob`
+   only exists if something called registerPlugin('AdMob') — which normally
+   happens inside the plugin's own JS module. This game is a single HTML file
+   with no bundler, so nothing ever imported it and every ad call silently
+   no-opped. Register it ourselves. */
 function adPlugin(){
+  if(ADS._plugin!==undefined)return ADS._plugin;
   const C=window.Capacitor;
-  return (C&&C.Plugins&&C.Plugins.AdMob)||window.AdMob||null;
+  let p=null;
+  if(!C){adLog('no Capacitor runtime (browser build)');ADS._plugin=null;return null;}
+  const native=!!(C.isNativePlatform&&C.isNativePlatform());
+  if(!native){adLog('Capacitor present but not a native platform');ADS._plugin=null;return null;}
+  try{
+    if(C.Plugins&&C.Plugins.AdMob){p=C.Plugins.AdMob;adLog('plugin via Capacitor.Plugins');}
+    else if(typeof C.registerPlugin==='function'){p=C.registerPlugin('AdMob');adLog('plugin via registerPlugin');}
+    else if(window.AdMob){p=window.AdMob;adLog('plugin via window.AdMob');}
+  }catch(e){adLog('registerPlugin threw: '+e.message,true);p=null;}
+  if(!p)adLog('AdMob plugin could not be resolved',true);
+  ADS._plugin=p;
+  return p;
 }
 async function adsInit(){
   const AdMob=adPlugin();
-  if(!AdMob){ADS.ready=true;ADS.native=false;return;}
+  if(!AdMob){ADS.ready=true;ADS.native=false;adLog('ads disabled: no plugin');return;}
   ADS.native=true;
+  adLog('units b='+AD_UNITS.banner.slice(-10)+' i='+AD_UNITS.interstitial.slice(-10)+' r='+AD_UNITS.rewarded.slice(-10));
   try{
     await AdMob.initialize({initializeForTesting:ADS.testMode||AD_TEST_DEVICES.length>0,testingDevices:AD_TEST_DEVICES,tagForChildDirectedTreatment:false});
     // UMP / GDPR consent — required in the EEA & UK before any personalised request
@@ -47,8 +72,8 @@ async function adsInit(){
         await AdMob.showConsentForm();
       }
       ADS.consent=(info&&info.status)||'unknown';
-    }catch(e){ADS.consent='error';}
-    ADS.ready=true;
+    }catch(e){ADS.consent='error';adLog('consent flow failed: '+(e&&e.message||e),true);}
+    ADS.ready=true;adLog('initialized, consent='+ADS.consent);
     // pause the game for the full lifetime of any fullscreen ad
     const on=(ev,fn)=>{try{AdMob.addListener(ev,fn);}catch(e){}};
     on('interstitialAdOpened',()=>setPaused(true,'ad'));
@@ -58,15 +83,17 @@ async function adsInit(){
     on('onRewardedVideoAdReward',()=>{ADS.rewardEarned=true;});
     on('rewardedVideoAdReward',()=>{ADS.rewardEarned=true;});
     adPreloadInter();adPreloadReward();
-  }catch(e){ADS.ready=true;ADS.native=false;}
+  }catch(e){adLog('initialize failed: '+(e&&e.message||e),true);ADS.ready=true;ADS.native=false;}
 }
 async function adPreloadInter(){
   const AdMob=adPlugin();if(!AdMob||ADS.removed)return;
-  try{await AdMob.prepareInterstitial({adId:AD_UNITS.interstitial,isTesting:ADS.testMode});}catch(e){}
+  try{await AdMob.prepareInterstitial({adId:AD_UNITS.interstitial,isTesting:ADS.testMode});adLog('interstitial preloaded');}
+  catch(e){adLog('interstitial preload: '+(e&&e.message||e),true);}
 }
 async function adPreloadReward(){
   const AdMob=adPlugin();if(!AdMob)return;
-  try{await AdMob.prepareRewardVideoAd({adId:AD_UNITS.rewarded,isTesting:ADS.testMode});}catch(e){}
+  try{await AdMob.prepareRewardVideoAd({adId:AD_UNITS.rewarded,isTesting:ADS.testMode});adLog('rewarded preloaded');}
+  catch(e){adLog('rewarded preload: '+(e&&e.message||e),true);}
 }
 /* ---- banner: menus only, never over gameplay ---- */
 async function adShowBanner(){
@@ -76,14 +103,14 @@ async function adShowBanner(){
   try{
     await AdMob.showBanner({adId:AD_UNITS.banner,adSize:'ADAPTIVE_BANNER',
       position:'BOTTOM_CENTER',margin:0,isTesting:ADS.testMode});
-    ADS.banner=true;
-  }catch(e){}
+    ADS.banner=true;adLog('banner shown');
+  }catch(e){adLog('banner failed: '+(e&&e.message||e),true);}
 }
 async function adHideBanner(){
   const AdMob=adPlugin();
   ADS.wantBanner=false;
   if(!AdMob||!ADS.banner)return;
-  try{await AdMob.hideBanner();ADS.banner=false;}catch(e){}
+  try{await AdMob.hideBanner();ADS.banner=false;}catch(e){adLog('hideBanner: '+(e&&e.message||e),true);}
 }
 /* ---- interstitial: after a run, rate-limited ---- */
 function adInterAllowed(){
@@ -100,7 +127,7 @@ async function adMaybeInterstitial(){
     await AdMob.showInterstitial();
     bump(ST,'adsWatched');saveStats();
     return true;
-  }catch(e){adPreloadInter();return false;}
+  }catch(e){adLog('interstitial show failed: '+(e&&e.message||e),true);adPreloadInter();return false;}
 }
 /* ---- rewarded: opt-in, always pays ---- */
 function adFinishReward(force){
@@ -124,6 +151,7 @@ async function adShowRewarded(cb){
     await AdMob.showRewardVideoAd();
     bump(ST,'adsWatched');saveStats();
   }catch(e){
+    adLog('rewarded show failed: '+(e&&e.message||e),true);
     adPreloadReward();
     adFinishReward(true);
   }
