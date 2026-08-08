@@ -45,9 +45,18 @@ let W=innerWidth,H=innerHeight,DPR=1,SAFE_INSET=0;
 const safeProbe=document.createElement('div');
 safeProbe.style.cssText='position:fixed;top:0;left:0;width:0;height:env(safe-area-inset-top,0px);pointer-events:none;visibility:hidden';
 document.body.appendChild(safeProbe);
+const safeProbeB=document.createElement('div');
+safeProbeB.style.cssText='position:fixed;bottom:0;left:0;width:0;height:env(safe-area-inset-bottom,0px);pointer-events:none;visibility:hidden';
+document.body.appendChild(safeProbeB);
+let NAV_INSET=0;
 function resize(){ /* floor: a 0-height viewport made ModeClimb.enter throw */
   DPR=Math.min(devicePixelRatio||1,2);
-  W=innerWidth;H=innerHeight;
+  NAV_INSET=Math.round(safeProbeB.getBoundingClientRect().height||0);
+  W=innerWidth;
+  // Never let the play area extend under the Android navigation bar / home
+  // indicator: anything drawn there is invisible AND untappable.
+  H=Math.max(240,innerHeight-NAV_INSET);
+  cv.style.height=H+'px';
   cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);
   ctx.setTransform(DPR,0,0,DPR,0,0);
   SAFE_INSET=safeProbe.getBoundingClientRect().height||0;
@@ -248,14 +257,42 @@ function vsResultPress(fromKey){
   VSM={seed:(Math.random()*1e9)|0,stage:1,p1:{name:a,score:0,cycle:0},p2:{name:b,score:0,cycle:0}};
   startGame(VSM.seed);
 }
-function brag(){
+function bragText(){
   const s=G?G.score:0,top=LB[0];
-  const txt='I scored '+(s||(top?top.score:0)).toLocaleString()+" in THE WHATEVER GAME — a game that can't pick a genre. beat that.";
+  return 'I scored '+(s||(top?top.score:0)).toLocaleString()+
+    " in THE WHATEVER GAME — a game that can't pick a genre. beat that.";
+}
+/* Every path here reports back. The old version could take the silent branch of
+   a rejected promise and leave the button looking broken. */
+function copyFallback(txt){
   try{
-    if(navigator.share){navigator.share({text:txt}).catch(()=>{});say("bragging dispatched.",2);}
-    else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).catch(()=>{});say("copied. go paste it somewhere public.",2.4);}
-    else say("no way to brag on this device. tragic.",2.2);
-  }catch(err){say("bragging failed. stay humble I guess.",2.2);}
+    const ta=document.createElement('textarea');
+    ta.value=txt;ta.style.cssText='position:fixed;opacity:0;top:0;left:0';
+    document.body.appendChild(ta);ta.select();
+    const ok=document.execCommand&&document.execCommand('copy');
+    document.body.removeChild(ta);
+    return !!ok;
+  }catch(e){return false;}
+}
+function brag(){
+  const txt=bragText();
+  SFX.good();
+  const shareApi=(typeof navigator!=='undefined')&&navigator.share;
+  if(shareApi){
+    try{
+      const r=navigator.share({title:'THE WHATEVER GAME',text:txt});
+      say("bragging dispatched.",2.2);
+      if(r&&r.catch)r.catch(()=>{ if(copyFallback(txt))say("share cancelled — copied instead.",2.4); });
+      return;
+    }catch(e){/* fall through to clipboard */}
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(
+      ()=>say("copied. go paste it somewhere public.",2.6),
+      ()=>say(copyFallback(txt)?"copied. go paste it somewhere public.":"couldn't copy. write it down, I guess.",2.6));
+    return;
+  }
+  say(copyFallback(txt)?"copied. go paste it somewhere public.":"no way to brag on this device. tragic.",2.6);
 }
 /* ---------- initials entry ---------- */
 let ENTRY={who:'solo',chars:[]};
@@ -919,7 +956,7 @@ const ModeFlap={
     this.spawnT-=dt;
     if(this.spawnT<=0){
       this.spawnT=1.55/G.speedMul;
-      const gapH=Math.max(150,215-G.cycle*14),m=SAFE_TOP()+40;
+      const gapH=Math.max(Math.max(150,P.r*5),215-G.cycle*14),m=SAFE_TOP()+40;
       const gy=rand(m+gapH/2,H-60-gapH/2);
       this.pillars.push({x:W+40,w:64,gy,gapH,scored:false});
       this.coinsA.push({x:W+40+32,y:gy,r:9,heart:rng()<0.08});
@@ -2256,19 +2293,19 @@ const ModeAstro={
 
 /* ---------------- PLINKO : the pegs decide ---------------- */
 const ModePlinko={
-  key:'plinko',name:'PLINKO',hint:'drag to aim · tap to drop · avoid the skull',
+  key:'plinko',name:'PLINKO',hint:'drag to aim · let go to drop · avoid the skull',
   col:{bg1:'#120a18',bg2:'#221232',accent:'#d24dff'},bpm:100,durMul:1.4,
   pegs:[],buckets:[],heldB:true,dropsN:0,
   topY(){return SAFE_TOP()+50;},
   enter(fresh){
-    this.heldB=true;this.dropsN=0;
+    this.heldB=true;this.dropsN=0;this.stuckT=0;
     P.x=W/2;P.y=this.topY();P.vx=0;P.vy=0;
     this.pegs=[];
     // dense staggered field — no straight shots into the buckets
     const rows=7,y0=SAFE_TOP()+105,dy=(H*0.82-y0)/(rows-1);
     for(let r=0;r<rows;r++){
       const n=7+(r%2);
-      for(let c=0;c<n;c++)this.pegs.push({x:W*0.08+(W*0.84)/(n-1)*c,y:y0+r*dy});
+      for(let c=0;c<n;c++)this.pegs.push({x:W*0.13+(W*0.74)/(n-1)*c,y:y0+r*dy});
     }
     this.makeBuckets();
   },
@@ -2279,9 +2316,12 @@ const ModePlinko={
     const jack=this.buckets.find(b=>b.v>=150&&!b.skull);
     if(jack&&rng()<0.3)jack.heart=true; // the ♥ bucket
   },
-  press(){
-    if(this.heldB){this.heldB=false;P.vx=rand(-30,30);P.vy=60;this.dropsN++;SFX.flap();}
+  press(){},                       // aiming starts on touch...
+  release(){                       // ...and the ball only drops when you let go
+    if(this.heldB){this.heldB=false;P.vx=rand(-30,30);P.vy=60;this.dropsN++;
+      this.stuckT=0;SFX.flap();}
   },
+  br(){ return Math.min(P.r,11); },  // physics radius: a GIANT BIT must still fit
   update(dt){
     if(this.heldB){
       if(IN.down)P.x=lerp(P.x,IN.px,0.3);
@@ -2290,19 +2330,34 @@ const ModePlinko={
       addScoreTick(dt,5);
       return;
     }
+    const br=this.br(), sep=br+6;
     P.vy+=1000*dt;P.x+=P.vx*dt;P.y+=P.vy*dt;
-    if(P.x<P.r+6){P.x=P.r+6;P.vx=Math.abs(P.vx)*0.6;}
-    if(P.x>W-P.r-6){P.x=W-P.r-6;P.vx=-Math.abs(P.vx)*0.6;}
+    if(P.x<br+6){P.x=br+6;P.vx=Math.abs(P.vx)*0.6;}
+    if(P.x>W-br-6){P.x=W-br-6;P.vx=-Math.abs(P.vx)*0.6;}
+    // resolve EVERY overlapping peg together: resolving them one at a time let
+    // two neighbouring pegs cancel each other out and trap the ball forever
+    let pushX=0,pushY=0,hits=0,nvx=0,nvy=0;
     for(const pg of this.pegs){
       const d=dist2(P.x,P.y,pg.x,pg.y);
-      if(d<(P.r+6)**2&&d>1){
+      if(d<sep*sep&&d>1){
         const dd=Math.sqrt(d),nx=(P.x-pg.x)/dd,ny=(P.y-pg.y)/dd;
-        P.x=pg.x+nx*(P.r+6);P.y=pg.y+ny*(P.r+6);
-        const dot=P.vx*nx+P.vy*ny;
-        P.vx-=1.7*dot*nx;P.vy-=1.7*dot*ny;
-        P.vx+=rand(-40,40);SFX.brick();
+        pushX+=nx*(sep-dd);pushY+=ny*(sep-dd);
+        nvx+=nx;nvy+=ny;hits++;
       }
     }
+    if(hits){
+      P.x+=pushX;P.y+=pushY;
+      const l=Math.hypot(nvx,nvy)||1;
+      const nx=nvx/l,ny=nvy/l;
+      const dot=P.vx*nx+P.vy*ny;
+      if(dot<0){P.vx-=1.7*dot*nx;P.vy-=1.7*dot*ny;}
+      P.vx+=rand(-40,40);
+      if(P.vy>-30&&P.vy<30)P.vy=80;   // never rest exactly on a peg
+      SFX.brick();
+    }
+    // last-resort unstick: if it has stopped descending, help it along
+    this.stuckT=(Math.abs(P.vy)<45)?(this.stuckT||0)+dt:0;
+    if(this.stuckT>0.5){P.vy=260;P.vx+=rand(-120,120);P.y+=6;this.stuckT=0;}
     if(P.y>H-34){
       const b=this.buckets[clamp(Math.floor(P.x/(W/5)),0,4)];
       if(b.skull){burst(P.x,H-40,'#ff4d6d',18,280);hurt('skull bucket');}
@@ -2310,7 +2365,7 @@ const ModePlinko={
         if(b.heart)gainHeart();
         if(b.v>=150){confetti(P.x,H-60);SFX.perfect();}else SFX.coin();}
       if(this.dropsN%5===0)this.makeBuckets();
-      this.heldB=true;P.x=W/2;P.y=this.topY();P.vx=0;P.vy=0;
+      this.heldB=true;P.x=W/2;P.y=this.topY();P.vx=0;P.vy=0;this.stuckT=0;
     }
     addScoreTick(dt,5);
   },
@@ -2657,6 +2712,7 @@ const ModeMaze={
     if(c%2===0)c++; if(r%2===0)r++;
     this.cols=c;this.rows=r;
     this.ox=(W-this.cols*this.cell)/2;this.oy=SAFE_TOP()+10+Math.max(0,(H-SAFE_TOP()-20-this.rows*this.cell)/2);
+    P.r=Math.min(P.r,this.cell*0.34);   // a GIANT BIT must still fit a corridor
     this.buildMaze();
     this.cleared=0;this.scareT=0;
     P.x=this.cx(1);P.y=this.cy(1);P.vx=0;P.vy=0;
@@ -3886,7 +3942,7 @@ function drawBoard(t){
     ctx.fillText(e.tag||'',cx+rw/2-10,y+rh*0.32);
     ctx.textAlign='center';ctx.globalAlpha=1;
   }
-  const bw=Math.min(W*0.4,170),bh=44,by=H-bh-24;
+  const bw=Math.min(W*0.4,170),bh=48,by=H-bh-28;
   BZ.brag={x:cx-bw-8,y:by,w:bw,h:bh};
   drawBtn(BZ.brag,'📣  BRAG','#4dd2ff');
   drawBtn({x:cx+8,y:by,w:bw,h:bh},'↩  BACK','rgba(255,255,255,0.7)');

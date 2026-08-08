@@ -66,6 +66,23 @@ a{color:var(--acc)}
 .small{font-size:11px;color:var(--dim)}
 select{background:#0a0a13;border:1px solid var(--line);color:var(--ink);border-radius:7px;padding:8px 10px;
   font-size:12px;width:100%}
+
+.copyrow{display:flex;gap:8px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #17172180}
+.copyrow .lbl{flex:0 0 150px;color:var(--dim);font-size:11.5px;font-weight:600;padding-top:5px}
+.copyrow .val{flex:1;background:#0a0a13;border:1px solid var(--line);border-radius:6px;
+  padding:7px 9px;font:11.5px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;
+  max-height:150px;overflow:auto;word-break:break-word}
+.copyrow button{flex:0 0 auto;padding:7px 12px;font-size:11px}
+.copyrow button.done{background:var(--good);border-color:var(--good);color:#04180e}
+.linkrow{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
+.linkrow a{padding:8px 13px;border:1px solid var(--line);border-radius:8px;text-decoration:none;
+  color:var(--ink);font-weight:700;font-size:11.5px;background:var(--panel)}
+.linkrow a:hover{border-color:var(--acc)}
+.proj{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.proj select{flex:1}
+details{margin:10px 0}
+summary{cursor:pointer;font:800 11px system-ui;letter-spacing:1.1px;text-transform:uppercase;
+  color:var(--pur);padding:6px 0}
 </style>
 </head>
 <body>
@@ -153,6 +170,32 @@ select{background:#0a0a13;border:1px solid var(--line);color:var(--ink);border-r
       </div>
       <div class="small" id="unitList" style="margin-top:10px"></div>
     </div>
+  </div>
+
+
+  <!-- ============ PLAY CONSOLE ============ -->
+  <div class="card">
+    <h2>Play Console</h2>
+    <p class="sub">Every answer for this app, ready to paste. Click a value to copy it.</p>
+
+    <div class="proj">
+      <select id="projPick"></select>
+      <span class="small" id="projPkg"></span>
+    </div>
+
+    <div class="linkrow" id="projLinks"></div>
+
+    <div id="pcFields"></div>
+
+    <details>
+      <summary>Content rating questionnaire</summary>
+      <div id="pcRating"></div>
+    </details>
+
+    <details>
+      <summary>Data safety</summary>
+      <div id="pcSafety"></div>
+    </details>
   </div>
 
   <!-- ============ BUILD ============ -->
@@ -319,6 +362,93 @@ async function applyFromAdmob() {
   if (!r.ok) alert((r.errors || ['failed']).join('\n'));
   refresh();
 }
+
+/* ---------- Play Console panel ---------- */
+let PROJECTS = [], ACTIVE = null;
+
+function copyBtn(text, btn) {
+  const done = () => { btn.textContent = 'copied'; btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('done'); }, 1300); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done, () => fallback(text, done));
+  } else fallback(text, done);
+}
+function fallback(text, done) {
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;top:0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch (e) { alert('Could not copy — select the text manually.'); }
+  document.body.removeChild(ta);
+}
+function row(parent, label, value) {
+  if (value === undefined || value === null || value === '') return;
+  const d = document.createElement('div');
+  d.className = 'copyrow';
+  const l = document.createElement('div'); l.className = 'lbl'; l.textContent = label;
+  const v = document.createElement('div'); v.className = 'val'; v.textContent = value;
+  const b = document.createElement('button'); b.textContent = 'copy';
+  b.onclick = () => copyBtn(String(value), b);
+  v.onclick = () => copyBtn(String(value), b);
+  d.appendChild(l); d.appendChild(v); d.appendChild(b);
+  parent.appendChild(d);
+}
+async function loadProjects() {
+  const r = await (await fetch('/api/projects')).json();
+  PROJECTS = r.list || [];
+  if (!PROJECTS.length) return;
+  ACTIVE = PROJECTS.find(p => p.id === r.active) || PROJECTS[0];
+  const sel = $('projPick');
+  sel.innerHTML = PROJECTS.map(p => '<option value="' + p.id + '"' + (p.id === ACTIVE.id ? ' selected' : '') + '>' + p.name + '</option>').join('');
+  sel.onchange = async () => {
+    await fetch('/api/project/select', { method: 'POST', body: JSON.stringify({ id: sel.value }) });
+    ACTIVE = PROJECTS.find(p => p.id === sel.value);
+    renderProject();
+  };
+  renderProject();
+}
+function renderProject() {
+  if (!ACTIVE) return;
+  const pc = ACTIVE.playConsole || {}, L = ACTIVE.links || {};
+  $('projPkg').textContent = ACTIVE.packageId || '';
+
+  $('projLinks').innerHTML =
+    [['Play Console', L.playConsole], ['AdMob', L.admob], ['Privacy policy', L.privacyPolicy],
+     ['Website', L.website], ['Repo', L.repo]]
+    .filter(x => x[1])
+    .map(x => '<a href="' + x[1] + '" target="_blank">' + x[0] + ' ↗</a>').join('');
+
+  const f = $('pcFields'); f.innerHTML = '';
+  row(f, 'App name', pc.appName);
+  row(f, 'Package ID', ACTIVE.packageId);
+  row(f, 'Short description', pc.shortDescription);
+  row(f, 'Full description', pc.fullDescription);
+  row(f, 'Release name', pc.releaseName);
+  row(f, 'Release notes', pc.releaseNotes);
+  row(f, 'Privacy policy URL', L.privacyPolicy);
+  row(f, 'Website', L.website);
+  row(f, 'Contact email', pc.contactEmail);
+  row(f, 'Category', pc.category);
+  row(f, 'Tags', pc.tags);
+  row(f, 'App access', pc.appAccess);
+  row(f, 'Free or paid', pc.freeOrPaid);
+  row(f, 'Contains ads', pc.containsAds ? 'Yes' : 'No');
+  row(f, 'Target audience', pc.targetAudience);
+  row(f, 'Ad content rating', pc.adContentRating);
+
+  const cr = $('pcRating'); cr.innerHTML = '';
+  for (const [q, a] of (ACTIVE.contentRating || [])) row(cr, q, a);
+
+  const ds = $('pcSafety'); ds.innerHTML = '';
+  const d = ACTIVE.dataSafety || {};
+  row(ds, 'Collects or shares', d.collectsOrShares);
+  row(ds, 'Encrypted in transit', d.encryptedInTransit);
+  row(ds, 'Deletion request', d.deletionRequest);
+  row(ds, 'Advertising ID', d.advertisingId);
+  for (const t of (d.types || [])) row(ds, t[0], t[1] + '  ·  ' + t[2] + '  ·  ' + t[3]);
+  row(ds, 'Do NOT declare', d.doNotDeclare);
+}
+loadProjects();
+
 refresh();
 </script>
 </body>

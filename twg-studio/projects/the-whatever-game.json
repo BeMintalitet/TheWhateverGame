@@ -1,0 +1,71 @@
+{
+  "id": "the-whatever-game",
+  "name": "THE WHATEVER GAME",
+  "packageId": "com.whatevergame.app",
+  "paths": {
+    "dev": "TheWhateverGame.html",
+    "release": "TheWhateverGame-release.html",
+    "www": "android-app/www/index.html",
+    "manifest": "android-app/android/app/src/main/AndroidManifest.xml",
+    "gradle": "android-app/android/app/build.gradle",
+    "androidDir": "android-app/android",
+    "appDir": "android-app"
+  },
+  "links": {
+    "privacyPolicy": "https://bemintalitet.github.io/TheWhateverGame/privacy.html",
+    "website": "https://bemintalitet.github.io/TheWhateverGame/",
+    "playConsole": "https://play.google.com/console",
+    "admob": "https://apps.admob.com",
+    "repo": "https://github.com/BeMintalitet/TheWhateverGame"
+  },
+  "playConsole": {
+    "appName": "THE WHATEVER GAME",
+    "shortDescription": "31 games in one. It morphs mid-run and never asks permission. Good luck.",
+    "fullDescription": "THE WHATEVER GAME cannot pick a genre. So it picks all of them.\n\nYou are a small round thing called Bit. Every few seconds the entire game changes underneath you — platformer, shoot-em-up, brick breaker, rhythm game, snake, maze chase, grappling hook, fishing, sumo, golf, plinko, tower defence — and you have to keep up. No tutorial screens. No menus between rounds. Just one continuous, escalating identity crisis.\n\n── WHAT'S IN IT ──\n\n• 31 genres, each a complete little game, all shuffled into one run\n• 4 boss fights that break the rules on purpose\n• 9 worlds that change gravity, speed and the entire mood\n• 6 mutators rolled onto genres at random — TINY BIT, LIGHTS OUT, GOLD RUSH\n• A cat. It turns up sometimes. Pet the cat.\n• ∅ VOID — the mode where the rules stop working\n\n── PROGRESSION THAT GOES SOMEWHERE ──\n\n• 1000+ badges, from \"score 500\" to things you will not find by accident\n• 104 skins for Bit — crowns, wings, lava cracks, holograms, a void cat.\n  Earned through badges or bought with bits you get just by playing.\n• Mastery levels for every single genre\n• A player rank that climbs the whole time you play\n• Three fresh contracts every day, and a login streak that pays out\n\n── FOUR WAYS TO PLAY ──\n\n• IDENTITY CRISIS — the main event. Everything, forever, faster.\n• SURVIVAL — pick one genre and see how long you last as it turns on you\n• DAILY CHALLENGE — everyone in the world gets the same seed today. No excuses.\n• VS — pass and play on one phone. Both players get an identical universe.\n\n── BUILT FOR A PHONE ──\n\n• One thumb. Portrait. Pick it up for ninety seconds or an hour.\n• Works completely offline — no account, no login, no internet needed\n• A real pause button, a working back button, and a reduced-flashing mode\n• Nothing is behind a paywall, because there is no paywall\n\nFree, funded by ads. Ads appear on menus and after a run has ended — never during one. You can watch an optional video to keep a run going, but you never have to, and nothing is locked if you don't.\n\nIt's called THE WHATEVER GAME because that's the only honest name for it.",
+    "releaseName": "1.0 (1)",
+    "releaseNotes": "First release.\n\n31 genres, 4 bosses, 9 worlds, over 1000 badges and 104 skins to unlock.\nIt still refuses to pick a genre.",
+    "category": "Arcade",
+    "tags": "Arcade, Casual, Action, Single player, Offline",
+    "contactEmail": "benjaminfosskristoffersen@gmail.com",
+    "appAccess": "All functionality is available without special access. No login, no account, no region lock. All 31 genres, all 4 bosses, all modes and the full progression system are available immediately on first launch. The app works completely offline.",
+    "containsAds": true,
+    "freeOrPaid": "Free",
+    "targetAudience": "13-15, 16-17, 18+  (do NOT tick under-13)",
+    "adContentRating": "T — Teen"
+  },
+  "contentRating": [
+    ["Category", "Game / Spil"],
+    ["Violence — realistic", "No"],
+    ["Violence — cartoon or fantasy", "Yes, mild"],
+    ["Blood / gore", "No"],
+    ["Sexuality or nudity", "No"],
+    ["Bad language", "No"],
+    ["Controlled substances", "No"],
+    ["Simulated gambling", "No — PLINKO has no wager, no stake, no loot boxes"],
+    ["Horror / fear", "No"],
+    ["User interaction", "No — fully offline, no chat, no accounts"],
+    ["Shares location", "No"],
+    ["Allows purchases", "No"],
+    ["Contains ads", "Yes"],
+    ["Flashing imagery", "Yes — the game ships a reduced-flashing setting"]
+  ],
+  "dataSafety": {
+    "collectsOrShares": "Yes",
+    "encryptedInTransit": "Yes",
+    "deletionRequest": "Yes",
+    "advertisingId": "Yes — purposes: Advertising or marketing + Analytics",
+    "types": [
+      ["Device or other IDs", "Collected + Shared", "Advertising or marketing; Fraud prevention, security and compliance", "Required"],
+      ["Approximate location", "Collected + Shared", "Advertising or marketing", "Required"],
+      ["App interactions", "Collected + Shared", "Advertising or marketing; Analytics", "Required"],
+      ["Diagnostics", "Collected + Shared", "Advertising or marketing", "Required"]
+    ],
+    "doNotDeclare": "Personal info, Financial info, Messages, Photos, Files, Contacts, Calendar, Health, Web browsing — none are touched. Scores, badges and skins never leave the device, so under Google's definition they are not collected."
+  },
+  "admob": {
+    "appId": "ca-app-pub-5434609640567182~9500756508",
+    "banner": "ca-app-pub-5434609640567182/1401674556",
+    "interstitial": "ca-app-pub-5434609640567182/6462429546",
+    "rewarded": "ca-app-pub-5434609640567182/3039289938"
+  }
+}

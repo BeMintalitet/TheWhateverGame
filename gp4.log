@@ -1,0 +1,6 @@
+[main 4b08bf5] fix: ads never loaded - Capacitor.Plugins.AdMob is only populated by registerPlugin(), which a bundler-less HTML file never calls. Register it at runtime, and stop swallowing every ad error in empty catch blocks.
+ 5 files changed, 221 insertions(+), 44 deletions(-)
+ create mode 100644 adb.log
+To https://github.com/BeMintalitet/TheWhateverGame.git
+   a08261f..4b08bf5  main -> main
+EXIT=0 

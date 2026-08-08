@@ -44,6 +44,27 @@ const P = {
   jbr:      'C:\\Program Files\\Android\\Android Studio\\jbr'
 };
 
+/* ------------------------------------------------------------------ */
+/* PROJECTS — a project file describes one app: its paths, its Play        */
+/* Console answers, its AdMob ids. Drop a new .json in projects/ and TWG    */
+/* Studio can drive that app too, with no code changes.                    */
+/* ------------------------------------------------------------------ */
+const PROJ_DIR = path.join(STUDIO, 'projects');
+function listProjects() {
+  try {
+    return fs.readdirSync(PROJ_DIR).filter(f => f.endsWith('.json')).map(f => {
+      const j = JSON.parse(fs.readFileSync(path.join(PROJ_DIR, f), 'utf8'));
+      j._file = f;
+      return j;
+    });
+  } catch (e) { return []; }
+}
+function activeProject() {
+  const all = listProjects();
+  if (!all.length) return null;
+  return all.find(p => p.id === (cfg.activeProject || '')) || all[0];
+}
+
 const cfg = loadCfg();
 function loadCfg() {
   try { return JSON.parse(fs.readFileSync(CFG_PATH, 'utf8')); }
@@ -459,6 +480,11 @@ const server = http.createServer(async (req, res) => {
         oauth: { configured: !!(cfg.oauth && cfg.oauth.clientId), connected: !!(cfg.oauth && cfg.oauth.refreshToken) },
         root: ROOT, busy
       });
+    }
+    if (u.pathname === '/api/projects') return send(200, { list: listProjects(), active: (activeProject() || {}).id || null });
+    if (u.pathname === '/api/project/select') {
+      const b = await body(); cfg.activeProject = b.id; saveCfg();
+      return send(200, { ok: true, active: b.id });
     }
     if (u.pathname === '/api/doctor')  return send(200, await doctor());
     if (u.pathname === '/api/setids')  return send(200, setIds(await body()));
