@@ -26,7 +26,7 @@
     "releaseNotes": "First release.\n\n31 genres, 4 bosses, 9 worlds, over 1000 badges and 104 skins to unlock.\nIt still refuses to pick a genre.",
     "category": "Arcade",
     "tags": "Arcade, Casual, Action, Single player, Offline",
-    "contactEmail": "benjaminfosskristoffersen@gmail.com",
+    "contactEmail": "TheWhateverGame@uniqapps.space",
     "appAccess": "All functionality is available without special access. No login, no account, no region lock. All 31 genres, all 4 bosses, all modes and the full progression system are available immediately on first launch. The app works completely offline.",
     "containsAds": true,
     "freeOrPaid": "Free",
@@ -34,20 +34,62 @@
     "adContentRating": "T — Teen"
   },
   "contentRating": [
-    ["Category", "Game / Spil"],
-    ["Violence — realistic", "No"],
-    ["Violence — cartoon or fantasy", "Yes, mild"],
-    ["Blood / gore", "No"],
-    ["Sexuality or nudity", "No"],
-    ["Bad language", "No"],
-    ["Controlled substances", "No"],
-    ["Simulated gambling", "No — PLINKO has no wager, no stake, no loot boxes"],
-    ["Horror / fear", "No"],
-    ["User interaction", "No — fully offline, no chat, no accounts"],
-    ["Shares location", "No"],
-    ["Allows purchases", "No"],
-    ["Contains ads", "Yes"],
-    ["Flashing imagery", "Yes — the game ships a reduced-flashing setting"]
+    [
+      "Category",
+      "Game / Spil"
+    ],
+    [
+      "Violence — realistic",
+      "No"
+    ],
+    [
+      "Violence — cartoon or fantasy",
+      "Yes, mild"
+    ],
+    [
+      "Blood / gore",
+      "No"
+    ],
+    [
+      "Sexuality or nudity",
+      "No"
+    ],
+    [
+      "Bad language",
+      "No"
+    ],
+    [
+      "Controlled substances",
+      "No"
+    ],
+    [
+      "Simulated gambling",
+      "No — PLINKO has no wager, no stake, no loot boxes"
+    ],
+    [
+      "Horror / fear",
+      "No"
+    ],
+    [
+      "User interaction",
+      "No — fully offline, no chat, no accounts"
+    ],
+    [
+      "Shares location",
+      "No"
+    ],
+    [
+      "Allows purchases",
+      "No"
+    ],
+    [
+      "Contains ads",
+      "Yes"
+    ],
+    [
+      "Flashing imagery",
+      "Yes — the game ships a reduced-flashing setting"
+    ]
   ],
   "dataSafety": {
     "collectsOrShares": "Yes",
@@ -55,10 +97,30 @@
     "deletionRequest": "Yes",
     "advertisingId": "Yes — purposes: Advertising or marketing + Analytics",
     "types": [
-      ["Device or other IDs", "Collected + Shared", "Advertising or marketing; Fraud prevention, security and compliance", "Required"],
-      ["Approximate location", "Collected + Shared", "Advertising or marketing", "Required"],
-      ["App interactions", "Collected + Shared", "Advertising or marketing; Analytics", "Required"],
-      ["Diagnostics", "Collected + Shared", "Advertising or marketing", "Required"]
+      [
+        "Device or other IDs",
+        "Collected + Shared",
+        "Advertising or marketing; Fraud prevention, security and compliance",
+        "Required"
+      ],
+      [
+        "Approximate location",
+        "Collected + Shared",
+        "Advertising or marketing",
+        "Required"
+      ],
+      [
+        "App interactions",
+        "Collected + Shared",
+        "Advertising or marketing; Analytics",
+        "Required"
+      ],
+      [
+        "Diagnostics",
+        "Collected + Shared",
+        "Advertising or marketing",
+        "Required"
+      ]
     ],
     "doNotDeclare": "Personal info, Financial info, Messages, Photos, Files, Contacts, Calendar, Health, Web browsing — none are touched. Scores, badges and skins never leave the device, so under Google's definition they are not collected."
   },
@@ -67,5 +129,14 @@
     "banner": "ca-app-pub-5434609640567182/1401674556",
     "interstitial": "ca-app-pub-5434609640567182/6462429546",
     "rewarded": "ca-app-pub-5434609640567182/3039289938"
+  },
+  "storeSettings": {
+    "appOrGame": "Spil / Game",
+    "category": "Arkade / Arcade",
+    "tags": "Up to 5 from Google's fixed list — aim for: Arcade, Casual, Action, Minigames, Reflex",
+    "contactEmail": "TheWhateverGame@uniqapps.space",
+    "contactPhone": "(leave blank — it is shown publicly and the field is optional)",
+    "contactWebsite": "https://bemintalitet.github.io/TheWhateverGame/",
+    "externalMarketing": "Leave ON — free promotion outside Play, no downside for a free app. Changes take up to 60 days."
   }
 }

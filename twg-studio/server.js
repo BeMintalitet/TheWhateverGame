@@ -486,6 +486,22 @@ const server = http.createServer(async (req, res) => {
       const b = await body(); cfg.activeProject = b.id; saveCfg();
       return send(200, { ok: true, active: b.id });
     }
+    if (u.pathname === '/api/project/save') {
+      // Edit a project straight from the UI. Written back to its own .json so the
+      // next session — and any other machine with the repo — sees the same answers.
+      const b = await body();
+      const all = listProjects();
+      const proj = all.find(x => x.id === b.id);
+      if (!proj) return send(200, { ok: false, error: 'unknown project' });
+      const file = path.join(PROJ_DIR, proj._file);
+      const disk = JSON.parse(fs.readFileSync(file, 'utf8'));
+      for (const [sect, fields] of Object.entries(b.values || {})) {
+        disk[sect] = Object.assign(disk[sect] || {}, fields);
+      }
+      fs.writeFileSync(file, JSON.stringify(disk, null, 2));
+      ok('saved ' + proj._file);
+      return send(200, { ok: true });
+    }
     if (u.pathname === '/api/doctor')  return send(200, await doctor());
     if (u.pathname === '/api/setids')  return send(200, setIds(await body()));
     if (u.pathname === '/api/version') { const b = await body(); return send(200, setVersion(b.code, b.name)); }

@@ -1,0 +1,8 @@
+[main e581570] fix: PLINKO dropped on touch instead of release and wedged between pegs; canvas ran under the Android nav bar making BRAG and the buckets untappable; brag() failed silently; MAZE corridors were narrower than a GIANT BIT. Adds a stuck-mode regression suite.
+ 8 files changed, 590 insertions(+), 66 deletions(-)
+ create mode 100644 build/harness/stuck.js
+ create mode 100644 gp4.log
+ create mode 100644 twg-studio/projects/the-whatever-game.json
+To https://github.com/BeMintalitet/TheWhateverGame.git
+   4b08bf5..e581570  main -> main
+EXIT=0 

@@ -187,6 +187,11 @@ summary{cursor:pointer;font:800 11px system-ui;letter-spacing:1.1px;text-transfo
 
     <div id="pcFields"></div>
 
+    <details open>
+      <summary>Store settings (category, contact, marketing)</summary>
+      <div id="pcStore"></div>
+    </details>
+
     <details>
       <summary>Content rating questionnaire</summary>
       <div id="pcRating"></div>
@@ -196,6 +201,13 @@ summary{cursor:pointer;font:800 11px system-ui;letter-spacing:1.1px;text-transfo
       <summary>Data safety</summary>
       <div id="pcSafety"></div>
     </details>
+
+    <div class="row">
+      <button class="primary" onclick="saveProject()">Save changes to this project</button>
+      <span class="small" id="projMsg"></span>
+    </div>
+    <p class="small" style="margin-top:8px">Edit any value above and save — it is written back to
+      <code>twg-studio/projects/</code>, so it survives restarts and travels with the repo.</p>
   </div>
 
   <!-- ============ BUILD ============ -->
@@ -380,17 +392,39 @@ function fallback(text, done) {
   try { document.execCommand('copy'); done(); } catch (e) { alert('Could not copy — select the text manually.'); }
   document.body.removeChild(ta);
 }
-function row(parent, label, value) {
+const EDITS = {};   // section -> { field: newValue }
+/* `edit` makes the value contentEditable and records changes for saving.
+   Read-only rows (the questionnaire tables) stay plain copy targets. */
+function row(parent, label, value, edit) {
   if (value === undefined || value === null || value === '') return;
   const d = document.createElement('div');
   d.className = 'copyrow';
   const l = document.createElement('div'); l.className = 'lbl'; l.textContent = label;
   const v = document.createElement('div'); v.className = 'val'; v.textContent = value;
+  if (edit) {
+    v.contentEditable = 'plaintext-only';
+    v.spellcheck = false;
+    v.style.cursor = 'text';
+    v.oninput = () => {
+      (EDITS[edit[0]] = EDITS[edit[0]] || {})[edit[1]] = v.textContent;
+      $('projMsg').innerHTML = '<span class="pill warn">unsaved</span>';
+    };
+  } else {
+    v.onclick = () => copyBtn(String(v.textContent), b);
+  }
   const b = document.createElement('button'); b.textContent = 'copy';
-  b.onclick = () => copyBtn(String(value), b);
-  v.onclick = () => copyBtn(String(value), b);
+  b.onclick = () => copyBtn(String(v.textContent), b);
   d.appendChild(l); d.appendChild(v); d.appendChild(b);
   parent.appendChild(d);
+}
+async function saveProject() {
+  if (!ACTIVE) return;
+  const r = await (await fetch('/api/project/save', { method: 'POST',
+    body: JSON.stringify({ id: ACTIVE.id, values: EDITS }) })).json();
+  $('projMsg').innerHTML = r.ok
+    ? '<span class="pill ok">saved</span>'
+    : '<span class="pill no">' + (r.error || 'failed') + '</span>';
+  if (r.ok) { for (const k in EDITS) delete EDITS[k]; loadProjects(); }
 }
 async function loadProjects() {
   const r = await (await fetch('/api/projects')).json();
@@ -418,22 +452,30 @@ function renderProject() {
     .map(x => '<a href="' + x[1] + '" target="_blank">' + x[0] + ' ↗</a>').join('');
 
   const f = $('pcFields'); f.innerHTML = '';
-  row(f, 'App name', pc.appName);
+  row(f, 'App name', pc.appName, ['playConsole','appName']);
   row(f, 'Package ID', ACTIVE.packageId);
-  row(f, 'Short description', pc.shortDescription);
-  row(f, 'Full description', pc.fullDescription);
-  row(f, 'Release name', pc.releaseName);
-  row(f, 'Release notes', pc.releaseNotes);
-  row(f, 'Privacy policy URL', L.privacyPolicy);
-  row(f, 'Website', L.website);
-  row(f, 'Contact email', pc.contactEmail);
-  row(f, 'Category', pc.category);
-  row(f, 'Tags', pc.tags);
-  row(f, 'App access', pc.appAccess);
-  row(f, 'Free or paid', pc.freeOrPaid);
+  row(f, 'Short description', pc.shortDescription, ['playConsole','shortDescription']);
+  row(f, 'Full description', pc.fullDescription, ['playConsole','fullDescription']);
+  row(f, 'Release name', pc.releaseName, ['playConsole','releaseName']);
+  row(f, 'Release notes', pc.releaseNotes, ['playConsole','releaseNotes']);
+  row(f, 'Privacy policy URL', L.privacyPolicy, ['links','privacyPolicy']);
+  row(f, 'Website', L.website, ['links','website']);
+  row(f, 'Contact email', pc.contactEmail, ['playConsole','contactEmail']);
+  row(f, 'App access', pc.appAccess, ['playConsole','appAccess']);
+  row(f, 'Free or paid', pc.freeOrPaid, ['playConsole','freeOrPaid']);
   row(f, 'Contains ads', pc.containsAds ? 'Yes' : 'No');
-  row(f, 'Target audience', pc.targetAudience);
-  row(f, 'Ad content rating', pc.adContentRating);
+  row(f, 'Target audience', pc.targetAudience, ['playConsole','targetAudience']);
+  row(f, 'Ad content rating', pc.adContentRating, ['playConsole','adContentRating']);
+
+  const st = $('pcStore'); st.innerHTML = '';
+  const ss = ACTIVE.storeSettings || {};
+  row(st, 'App or game', ss.appOrGame, ['storeSettings','appOrGame']);
+  row(st, 'Category', ss.category, ['storeSettings','category']);
+  row(st, 'Tags', ss.tags, ['storeSettings','tags']);
+  row(st, 'Contact email', ss.contactEmail, ['storeSettings','contactEmail']);
+  row(st, 'Contact phone', ss.contactPhone, ['storeSettings','contactPhone']);
+  row(st, 'Contact website', ss.contactWebsite, ['storeSettings','contactWebsite']);
+  row(st, 'External marketing', ss.externalMarketing, ['storeSettings','externalMarketing']);
 
   const cr = $('pcRating'); cr.innerHTML = '';
   for (const [q, a] of (ACTIVE.contentRating || [])) row(cr, q, a);
