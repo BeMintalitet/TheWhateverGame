@@ -10,6 +10,7 @@
 <meta property="og:image" content="feature.png">
 <meta property="og:type" content="website">
 <link rel="icon" href="icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <style>
   :root{
     --bg:#05050c; --panel:#0e0e18; --line:#1e1e2c; --ink:#e9e9f4; --dim:#8b90a6;
@@ -163,5 +164,8 @@
   </div>
 </footer>
 
+<script>
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./service-worker.js");
+</script>
 </body>
 </html>

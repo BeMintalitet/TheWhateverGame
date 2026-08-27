@@ -1,0 +1,21 @@
+{
+  "name": "THE WHATEVER GAME",
+  "short_name": "Whatever Game",
+  "description": "A genre-fluid arcade game with 31 genres, four bosses and nine worlds.",
+  "id": "./play.html",
+  "start_url": "./play.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#07070d",
+  "theme_color": "#07070d",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
