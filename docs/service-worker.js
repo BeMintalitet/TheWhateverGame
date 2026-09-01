@@ -1,5 +1,10 @@
-const CACHE = "the-whatever-game-1.0.5-r2";
-const CORE = ["./", "index.html", "play.html", "manifest.webmanifest", "icon.png", "feature.png"];
+const CACHE = "the-whatever-game-1.0.6-r3";
+const CORE = [
+  "./", "index.html", "play.html", "manifest.webmanifest", "icon.png", "feature.png",
+  "assets/pocket-rpg-icon-256.png",
+  "assets/pocket-rpg-sprite-atlas-v1.png",
+  "assets/pocket-rpg-boss-atlas-v1.png"
+];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)));

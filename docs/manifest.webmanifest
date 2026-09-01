@@ -1,7 +1,7 @@
 {
   "name": "THE WHATEVER GAME",
   "short_name": "Whatever Game",
-  "description": "A genre-fluid arcade game with 31 genres, four bosses and nine worlds.",
+  "description": "A genre-fluid arcade game with 32 genres, including Pocket RPG, four bosses and nine worlds.",
   "id": "./play.html",
   "start_url": "./play.html",
   "scope": "./",
