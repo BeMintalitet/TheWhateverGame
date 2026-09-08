@@ -1,5 +1,11 @@
 # Upload nu — trin for trin
 
+> SECURITY NOTICE (2026-09-08): Historical instructions below are outdated.
+> A signing password previously included here has been removed and must be
+> treated as exposed. Git history may retain it. Never add passwords or private
+> keys to this document. Retain the old key securely until any Play upload-key
+> reset is approved; deleting it can prevent updates on other stores.
+
 AdMob er færdig. Herfra er der tre ting tilbage: **byg**, **udfyld Play Console**,
 **lukket test**. Regn med 60-90 minutter aktivt arbejde, plus 14 dages ventetid.
 
@@ -8,7 +14,7 @@ AdMob er færdig. Herfra er der tre ting tilbage: **byg**, **udfyld Play Console
 ## Nøglens adgangskode (du spurgte)
 
 ```
-qKX#0cxmQxGABUEyTeD!Np?Wq/=O
+[REDACTED — use the private signing configuration; never publish credentials]
 ```
 
 Den ligger i klartekst i:
